@@ -1,0 +1,144 @@
+// dllmain.cpp : Defines the entry point for the DLL application.
+/*
+
+Self Unloading DLL
+
+
+
+*/
+
+#include <Windows.h>
+#include "pch.h"
+#include <iostream>
+
+
+HMODULE myhModule;
+
+//free Library Function to Enable editing while dll is attached to game
+DWORD __stdcall EjectThread(LPVOID lpParameter) {
+    Sleep(100);
+    FreeLibraryAndExitThread(myhModule, 0);
+}
+
+
+DWORD WINAPI Menue() {
+    AllocConsole();
+    FILE* fp; // create dummy file poiting to original
+    freopen_s(&fp, "CONOUT$", "w", stdout); // output only
+    std::cout << "Combat Arms - Mod Menu" << std::endl;
+    while (1) {
+        Sleep(100);
+        if (GetAsyncKeyState('X') & 0x8000) { // & 0x8000 is used to check if key is pressed at the moment
+            std::cout << "Key Press Detetected";
+            break;
+        }
+        
+    }
+    
+    fclose(fp);
+    FreeConsole();
+    CreateThread(0, 0, EjectThread, 0, 0, 0); // call create thread function
+    return 0;
+}
+
+
+BOOL APIENTRY DllMain( HMODULE hModule,
+                       DWORD  ul_reason_for_call,
+                       LPVOID lpReserved
+                     )
+{
+    switch (ul_reason_for_call)
+    {
+    //when dll is loaded
+    case DLL_PROCESS_ATTACH:
+        myhModule = hModule;
+        CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)Menue, NULL, 0, NULL);// create thread to run our function
+    case DLL_THREAD_ATTACH:
+    case DLL_THREAD_DETACH:
+    case DLL_PROCESS_DETACH:
+        break;
+    }
+    return TRUE;
+}
+
+
+/*
+Finding Pointers and memory addresses
+
+
+CS Source Debugging console commands
+Set the round time to a maximum value using the command: mp_roundtime 99999 (or any high value)
+Set the warm-up time to a large value using the command: mp_warmuptime 234124235 (or any large number)
+
+// Pointer Map MEthod
+
+
+
+
+
+
+// Pointer Scan Method
+
+1. Find Value on Cheat Engine
+
+2. Make Pointer Scan (With Box That has to end in a vaue checked preferbly)
+
+3. Close Game & Find New Value on Cheat Engine
+
+4. Go Back to Pointer Scanner and Resscan pointerlist with new address
+a. right click and go to "what access this address" (Need to have debugger setting set to windows)
+b. find out which values and offeset are stored in the function
+c. look for pointer that end with same address thats usually executed when fuction
+ you are looking for is executed, in this case: 000004B0 which is the last function executed in the memory
+ d. also try to find offets in the middle of function that match position in which it was executed on test you are looking for ex: 20 in hex: 18
+ e. you can do step "d" by clicking on pointer scanner than resacaning mememory with last executed offset: 000004B0
+
+5. Repeat step 4 until ou shrink the list
+
+6. Move Some addresses to address table and restart the game to see if they stay
+
+7. If they stay you got youre pointer address = "server.dll"+004EE66C"
+
+
+// Step 4. Example
+6005CB50 - 8B 81 B0040000  - mov eax,[ecx+000004B0] // 
+
+6025E309 - 89 1E  - mov [esi],ebx <<
+6025E30B - 8B C7  - mov eax,edi
+6025E30D - 5F - pop edi
+
+EAX=00000001
+EBX=00000014 // current (20) converted from hex to decimal
+ECX=000004B0
+EDX=6F340CA0
+ESI=0DBA42B0
+EDI=00000015 // previous
+
+
+
+// Multi-Level
+1. Find Value on Cheat Engine
+
+2.right click and go to what access this address
+find out which value is storing the current one 
+
+//Example
+6005CB50 - 8B 81 B0040000  - mov eax,[ecx+000004B0] // 
+
+6025E309 - 89 1E  - mov [esi],ebx <<
+6025E30B - 8B C7  - mov eax,edi
+6025E30D - 5F - pop edi
+
+EAX=00000001
+EBX=00000014 // current (20) converted from hex to decimal
+ECX=000004B0
+EDX=6F340CA0
+ESI=0DBA42B0
+EDI=00000015 // previous
+
+
+
+
+
+https://www.youtube.com/watch?v=rBe8Atevd-4&t=484s
+*/

@@ -1,0 +1,8 @@
+﻿  pch.cpp
+  dllmain.cpp
+C:\PJS\CM_MM\dllmain.cpp(7,5): error C2065: 'File': undeclared identifier
+C:\PJS\CM_MM\dllmain.cpp(7,11): error C2065: 'fp': undeclared identifier
+C:\PJS\CM_MM\dllmain.cpp(8,16): error C2065: 'fp': undeclared identifier
+C:\PJS\CM_MM\dllmain.cpp(11,9): error C3861: 'sleep': identifier not found
+C:\PJS\CM_MM\dllmain.cpp(16,12): error C2065: 'fp': undeclared identifier
+C:\PJS\CM_MM\dllmain.cpp(17,5): warning C4551: function call missing argument list
